@@ -70,6 +70,8 @@
     cursor:pointer;color:var(--text-mute);font-family:'JetBrains Mono',monospace;font-size:11px;
   }
   .audio:hover{color:var(--text)}
+  .ring{position:absolute;top:0;left:0}
+  .ring circle{filter:drop-shadow(0 0 4px currentColor)}
 </style>
 </head>
 <body>
@@ -83,7 +85,13 @@
     <div class="audio" id="audio" title="Toggle ambient (M)">♪</div>
 
     <div class="badge" id="badge">
-      <!-- ring SVG goes here in Task 3 -->
+      <svg class="ring" viewBox="0 0 48 48" width="48" height="48" aria-hidden="true">
+        <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
+        <circle id="ring-progress" cx="24" cy="24" r="20" fill="none" stroke="var(--neon-cyan)" stroke-width="2"
+                stroke-linecap="round" stroke-dasharray="125.6" stroke-dashoffset="125.6"
+                transform="rotate(-90 24 24)"
+                style="transition: stroke-dashoffset 0.1s linear, stroke 0.4s ease"/>
+      </svg>
       <span class="badge-num" id="badge-num">1</span>
     </div>
 
@@ -163,6 +171,57 @@
     const x = e.clientX / window.innerWidth;
     if (x < 0.20) prev();
     else if (x > 0.40) next();
+  });
+
+  // ──────────────────────────────────────────────
+  //  COUNTDOWN RING (60s glance cue, no auto-advance)
+  // ──────────────────────────────────────────────
+  const RING_LEN = 125.6; // 2 * PI * r where r=20
+  const SLIDE_DURATION = 60; // seconds
+  let elapsed = 0;
+  let lastTick = performance.now();
+  let timerPaused = false;
+
+  function ringColor(secs){
+    if (secs >= 60) return getComputedStyle(document.documentElement).getPropertyValue('--neon-pink').trim();
+    if (secs >= 50) return getComputedStyle(document.documentElement).getPropertyValue('--neon-amber').trim();
+    return getComputedStyle(document.documentElement).getPropertyValue('--neon-cyan').trim();
+  }
+  function updateRing(){
+    const ring = document.getElementById('ring-progress');
+    if (!ring) return;
+    const pct = Math.min(elapsed / SLIDE_DURATION, 1);
+    ring.setAttribute('stroke-dashoffset', String(RING_LEN * (1 - pct)));
+    ring.style.stroke = ringColor(elapsed);
+  }
+  function tick(now){
+    const dt = (now - lastTick) / 1000;
+    lastTick = now;
+    if (!timerPaused) elapsed += dt;
+    updateRing();
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  function resetTimer(){ elapsed = 0; updateRing(); }
+
+  // Pause when tab is hidden, resume when visible
+  document.addEventListener('visibilitychange', () => {
+    timerPaused = document.hidden;
+    lastTick = performance.now();
+  });
+
+  // Reset timer on slide change (hook into goTo)
+  const _origGoTo = goTo;
+  goTo = function(n){
+    const before = state.slide;
+    _origGoTo(n);
+    if (state.slide !== before) resetTimer();
+  };
+
+  // R key resets timer
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'r' || e.key === 'R') resetTimer();
   });
   </script>
 </body>
