@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>THE RESET — Pitch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Noto+Sans+KR:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0a0d14; --haze:#1a1f2e; --panel:#12161f;
+    --neon-cyan:#60e0ff; --neon-pink:#f472b6; --neon-amber:#fbbf24; --neon-violet:#a78bfa;
+    --text:#e2e8f0; --text-dim:#94a3b8; --text-mute:#64748b;
+    --slide-w:1280px; --slide-h:800px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--ink);color:var(--text);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  body{display:flex;align-items:center;justify-content:center;cursor:default;user-select:none}
+
+  /* Stage that scales to fit while preserving 16:10 aspect */
+  .stage{
+    position:relative;width:var(--slide-w);height:var(--slide-h);
+    transform-origin:center;background:var(--ink);overflow:hidden;
+  }
+
+  /* Brand lockup top-left */
+  .brand{
+    position:absolute;top:24px;left:32px;z-index:10;display:flex;align-items:baseline;gap:8px;
+    font-weight:800;letter-spacing:2px;font-size:11px;color:var(--text);
+  }
+  .brand .han{font-family:'Noto Sans KR',sans-serif;font-weight:400;color:var(--neon-amber);font-size:11px;letter-spacing:0}
+
+  /* Slide-number badge top-right (countdown ring filled in Task 3) */
+  .badge{
+    position:absolute;top:20px;right:28px;z-index:10;width:48px;height:48px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .badge-num{
+    position:absolute;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:500;
+    color:var(--text);z-index:2;
+  }
+
+  /* Ghost dots bottom-center */
+  .dots{
+    position:absolute;bottom:22px;left:50%;transform:translateX(-50%);z-index:10;
+    display:flex;gap:10px;
+  }
+  .dot{
+    width:8px;height:8px;border-radius:50%;background:var(--text-mute);opacity:.4;
+    transition:all .35s ease-out;
+  }
+  .dot.active{background:var(--neon-amber);opacity:1;box-shadow:0 0 10px var(--neon-amber);width:22px;border-radius:4px}
+
+  /* Slides */
+  .slide{
+    position:absolute;inset:0;padding:80px 64px 80px;
+    display:flex;flex-direction:column;
+    opacity:0;pointer-events:none;transition:opacity .5s ease-out;
+  }
+  .slide.active{opacity:1;pointer-events:auto}
+
+  /* Background canvas */
+  .bg{position:absolute;inset:0;z-index:0;pointer-events:none}
+
+  /* Audio toggle */
+  .audio{
+    position:absolute;top:24px;right:96px;z-index:10;
+    width:24px;height:24px;display:flex;align-items:center;justify-content:center;
+    cursor:pointer;color:var(--text-mute);font-family:'JetBrains Mono',monospace;font-size:11px;
+  }
+  .audio:hover{color:var(--text)}
+</style>
+</head>
+<body>
+  <div class="stage" id="stage">
+    <canvas class="bg" id="bg"></canvas>
+
+    <div class="brand">
+      THE RESET <span class="han">「리셋」</span>
+    </div>
+
+    <div class="audio" id="audio" title="Toggle ambient (M)">♪</div>
+
+    <div class="badge" id="badge">
+      <!-- ring SVG goes here in Task 3 -->
+      <span class="badge-num" id="badge-num">1</span>
+    </div>
+
+    <section class="slide active" id="slide-1" data-slide="0">
+      <!-- Slide 1 content in Task 4 -->
+    </section>
+
+    <section class="slide" id="slide-2" data-slide="1">
+      <!-- Slide 2 content in Task 8 -->
+    </section>
+
+    <section class="slide" id="slide-3" data-slide="2">
+      <!-- Slide 3 content in Task 9 -->
+    </section>
+
+    <div class="dots">
+      <div class="dot active" data-dot="0"></div>
+      <div class="dot" data-dot="1"></div>
+      <div class="dot" data-dot="2"></div>
+    </div>
+  </div>
+
+  <script>
+  // Auto-scale stage to fit viewport while preserving aspect ratio
+  (function(){
+    const stage = document.getElementById('stage');
+    function fit(){
+      const SW = 1280, SH = 800;
+      const vw = window.innerWidth, vh = window.innerHeight;
+      const scale = Math.min(vw / SW, vh / SH);
+      stage.style.transform = `scale(${scale})`;
+    }
+    window.addEventListener('resize', fit);
+    fit();
+  })();
+  </script>
+</body>
+</html>
