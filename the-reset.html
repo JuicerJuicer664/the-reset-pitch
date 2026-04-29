@@ -353,7 +353,40 @@
     if (n === 0) {
       const tag = document.getElementById('s1-tag');
       if (tag) revealSentence(tag);
+      typeAIPanel();
     }
+  }
+
+  // Pre-scripted faux-AI ingredient stream
+  const AI_LINES = [
+    '> detecting frosted PET bottle... 16oz capacity confirmed',
+    '> liquid: yuzu-pear blend',
+    '> active stack: DHM 1.2g · L-cysteine 600mg · Korean pear ext.',
+    '> target use: pre-bed, post-celebration',
+    '> status: ready'
+  ];
+  let _aiTimer = null;
+  function typeAIPanel(){
+    const out = document.getElementById('ai-text');
+    if (!out) return;
+    if (_aiTimer) { clearInterval(_aiTimer); _aiTimer = null; }
+    out.textContent = '';
+    let li = 0, ci = 0;
+    // Start typing after the panel finishes its entry transition (~1.4s in)
+    setTimeout(() => {
+      _aiTimer = setInterval(() => {
+        if (li >= AI_LINES.length) { clearInterval(_aiTimer); _aiTimer = null; return; }
+        const line = AI_LINES[li];
+        if (ci < line.length) {
+          out.textContent += line[ci];
+          ci++;
+        } else {
+          out.textContent += '\n';
+          li++;
+          ci = 0;
+        }
+      }, 22);
+    }, 1400);
   }
 
   // Trigger initial slide's animation on load
