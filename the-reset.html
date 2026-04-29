@@ -72,6 +72,55 @@
   .audio:hover{color:var(--text)}
   .ring{position:absolute;top:0;left:0}
   .ring circle{filter:drop-shadow(0 0 4px currentColor)}
+
+  /* ── SLIDE 1 ── */
+  .s1-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:64px;height:100%;align-items:center}
+  .s1-hero{position:relative;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:8px}
+  .s1-hero img{
+    max-height:100%;max-width:100%;object-fit:contain;display:block;
+    filter:drop-shadow(0 30px 60px rgba(0,0,0,.6));
+    opacity:0;transform:scale(1.02);transition:opacity 1.2s ease-out, transform 6s ease-out;
+  }
+  .slide.active .s1-hero img{opacity:1;transform:scale(1)}
+
+  .ai-panel{
+    position:absolute;left:16px;bottom:16px;
+    background:rgba(10,13,20,.75);border:1px solid rgba(96,224,255,.25);
+    backdrop-filter:blur(8px);
+    padding:10px 14px;border-radius:6px;
+    font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--neon-cyan);
+    line-height:1.55;max-width:340px;min-height:90px;
+    box-shadow:0 0 24px rgba(96,224,255,.08);
+    opacity:0;transform:translateY(8px);transition:all .8s ease-out .6s;
+  }
+  .slide.active .ai-panel{opacity:1;transform:translateY(0)}
+  .ai-panel pre{font-family:inherit;color:inherit;white-space:pre-wrap;display:inline}
+  .ai-cursor{display:inline-block;color:var(--neon-cyan);animation:blink 1s steps(2) infinite;margin-left:2px}
+  @keyframes blink{50%{opacity:0}}
+
+  .s1-content{display:flex;flex-direction:column;justify-content:center;gap:32px}
+  .s1-wordmark{
+    font-size:88px;font-weight:900;line-height:.92;letter-spacing:-2px;
+    color:var(--text);
+    border-bottom:2px solid var(--neon-amber);padding-bottom:24px;
+  }
+  .s1-han{
+    display:block;font-family:'Noto Sans KR',sans-serif;font-weight:400;font-size:36px;
+    color:var(--neon-amber);letter-spacing:6px;margin-top:12px;
+  }
+  .s1-tag{font-size:24px;font-weight:600;line-height:1.4;color:var(--text);min-height:2.8em}
+  .s1-tag .ch{opacity:0;transition:opacity .25s ease-out}
+  .s1-tag .ch.show{opacity:1}
+
+  .s1-chips{display:flex;gap:12px;flex-wrap:wrap}
+  .chip{
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1.5px;
+    padding:8px 14px;border-radius:999px;
+    background:rgba(167,139,250,.10);color:var(--neon-violet);border:1px solid rgba(167,139,250,.3);
+    opacity:0;transform:translateY(8px);
+    transition:all .5s ease-out;transition-delay:var(--d);
+  }
+  .slide.active .chip{opacity:1;transform:translateY(0)}
 </style>
 </head>
 <body>
@@ -96,7 +145,25 @@
     </div>
 
     <section class="slide active" id="slide-1" data-slide="0">
-      <!-- Slide 1 content in Task 4 -->
+      <div class="s1-grid">
+        <div class="s1-hero">
+          <img id="hero-img" alt="The Reset bottle on a Seoul convenience store counter at 2 AM"
+               src="<!--HERO_DATA_URL-->">
+          <!-- SVG wireframe overlay added in Task 5 -->
+          <div class="ai-panel" id="ai-panel" aria-hidden="true">
+            <pre id="ai-text"></pre><span class="ai-cursor">▮</span>
+          </div>
+        </div>
+        <div class="s1-content">
+          <h1 class="s1-wordmark">THE RESET<br><span class="s1-han">「리셋」</span></h1>
+          <p class="s1-tag" id="s1-tag" data-text="Hydration + Hepatic Defense for the 2 AM walk home."></p>
+          <div class="s1-chips">
+            <span class="chip" style="--d:0ms">KOREAN PEAR</span>
+            <span class="chip" style="--d:120ms">YUZU</span>
+            <span class="chip" style="--d:240ms">DHM</span>
+          </div>
+        </div>
+      </div>
     </section>
 
     <section class="slide" id="slide-2" data-slide="1">
@@ -223,6 +290,38 @@
   document.addEventListener('keydown', (e) => {
     if (e.key === 'r' || e.key === 'R') resetTimer();
   });
+
+  // ──────────────────────────────────────────────
+  //  PER-SLIDE ENTER ANIMATIONS
+  // ──────────────────────────────────────────────
+  function revealSentence(el){
+    const text = el.dataset.text || '';
+    el.innerHTML = '';
+    const spans = [];
+    for (const ch of text) {
+      const s = document.createElement('span');
+      s.className = 'ch';
+      s.textContent = ch === ' ' ? ' ' : ch;
+      el.appendChild(s);
+      spans.push(s);
+    }
+    let i = 0;
+    const iv = setInterval(() => {
+      if (i >= spans.length) { clearInterval(iv); return; }
+      spans[i].classList.add('show');
+      i++;
+    }, 33); // ~30 chars/sec
+  }
+
+  function onSlideEnter(n){
+    if (n === 0) {
+      const tag = document.getElementById('s1-tag');
+      if (tag) revealSentence(tag);
+    }
+  }
+
+  // Trigger initial slide's animation on load
+  window.addEventListener('load', () => onSlideEnter(state.slide));
   </script>
 </body>
 </html>
