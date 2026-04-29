@@ -119,6 +119,51 @@
     window.addEventListener('resize', fit);
     fit();
   })();
+
+  // ──────────────────────────────────────────────
+  //  NAVIGATION CONTROLLER
+  // ──────────────────────────────────────────────
+  const SLIDES = ['slide-1', 'slide-2', 'slide-3'];
+  const state = { slide: 0 };
+
+  function goTo(n){
+    n = Math.max(0, Math.min(SLIDES.length - 1, n));
+    if (n === state.slide) return;
+    state.slide = n;
+    SLIDES.forEach((id, i) => {
+      document.getElementById(id).classList.toggle('active', i === n);
+    });
+    document.querySelectorAll('.dot').forEach((d, i) => {
+      d.classList.toggle('active', i === n);
+    });
+    document.getElementById('badge-num').textContent = String(n + 1);
+    // Hook for per-slide enter animations (filled in Tasks 4, 8, 9)
+    if (typeof onSlideEnter === 'function') onSlideEnter(n);
+  }
+  function next(){ goTo(state.slide + 1); }
+  function prev(){ goTo(state.slide - 1); }
+
+  // Keyboard
+  document.addEventListener('keydown', (e) => {
+    if (['ArrowRight', ' ', 'PageDown'].includes(e.key)) { e.preventDefault(); next(); }
+    else if (['ArrowLeft', 'Backspace', 'PageUp'].includes(e.key)) { e.preventDefault(); prev(); }
+    else if (e.key === 'r' || e.key === 'R') { /* countdown reset — Task 3 */ }
+    else if (e.key === 'm' || e.key === 'M') { /* audio toggle — Task 11 */ }
+    else if (e.key === 'f' || e.key === 'F') {
+      e.preventDefault();
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else document.exitFullscreen();
+    }
+  });
+
+  // Click zones: left 20% = prev, right 60% = next, middle 20% = no-op
+  document.addEventListener('click', (e) => {
+    // Ignore clicks on interactive UI elements
+    if (e.target.closest('.audio, .dot')) return;
+    const x = e.clientX / window.innerWidth;
+    if (x < 0.20) prev();
+    else if (x > 0.40) next();
+  });
   </script>
 </body>
 </html>
